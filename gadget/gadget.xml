@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright (C) 2009 eXo Platform SAS.
+
+    This is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this software; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+-->
+<Module>
+    <ModulePrefs author="Jeremi Joslin - eXo Platform"
+                 title="Roo - Graph"
+                 directory_title="Sonar - Rules compliance"
+                 title_url="http://www.exoplatform.com"
+                 description="Sonar gadget."
+                 author_email="jeremi23@gmail.com">
+
+        <Require feature="dynamic-height" />
+        <Require feature="setprefs"/>
+        <Require feature="settitle"/>
+    </ModulePrefs>
+    <UserPref name="roo_service_url" datatype="string" default_value="http://localhost:8090/petclinic/monitoring/"/>
+	<UserPref name="graph_type" datatype="string"/>
+	<UserPref name="class_name" datatype="string"/>
+	<UserPref name="field_name" datatype="string"/>
+	<UserPref name="from" datatype="string"/>
+	<UserPref name="to" datatype="string"/>
+	<UserPref name="name" datatype="string"/>
+    <UserPref name="is_configured" datatype="hidden" default_value="0"/>
+    <Content type="html">
+      <![CDATA[
+		
+		<style>
+			/*
+			 * Style for preferences
+			 */
+			label {
+			    display: block;
+			}
+			fieldset input, fieldset select {
+			    width:100%;
+			}
+			fieldset .help {
+			    font-size:12px;
+			    background-color:#FFF;
+			    border: 0;
+			    padding:0px;
+			}
+
+			/*
+			 *  Style for the gadget
+			 */
+			a:visited {
+			    color:#333333;
+			}
+
+			#footer {
+			    border-top-color:#C3C3C3;
+			    border-top-style:solid;
+			    border-top-width:1px;
+			    margin-top:20px;
+
+			}
+
+			img{border:0;}
+			
+			
+			
+			//Datepicker
+			
+			table.jCalendar {
+				border: 1px solid #000;
+				background: #aaa;
+			    border-collapse: separate;
+			    border-spacing: 2px;
+			}
+			table.jCalendar th {
+				background: #333;
+				color: #fff;
+				font-weight: bold;
+				padding: 3px 5px;
+			}
+
+			table.jCalendar td {
+				background: #ccc;
+				color: #000;
+				padding: 3px 5px;
+				text-align: center;
+			}
+			table.jCalendar td.other-month {
+				background: #ddd;
+				color: #aaa;
+			}
+			table.jCalendar td.today {
+				background: #666;
+				color: #fff;
+			}
+			table.jCalendar td.selected {
+				background: #f66;
+				color: #fff;
+			}
+			table.jCalendar td.selected.dp-hover {
+				background: #f33;
+				color: #fff;
+			}
+			table.jCalendar td.dp-hover,
+			table.jCalendar tr.activeWeekHover td {
+				background: #fff;
+				color: #000;
+			}
+			table.jCalendar tr.selectedWeek td {
+				background: #f66;
+				color: #fff;
+			}
+			table.jCalendar td.disabled, table.jCalendar td.disabled.dp-hover {
+				background: #bbb;
+				color: #888;
+			}
+			table.jCalendar td.unselectable,
+			table.jCalendar td.unselectable:hover,
+			table.jCalendar td.unselectable.dp-hover {
+				background: #bbb;
+				color: #888;
+			}
+
+			/* For the popup */
+
+			/* NOTE - you will probably want to style a.dp-choose-date - see how I did it in demo.css */
+
+			div.dp-popup {
+				position: relative;
+				background: #ccc;
+				font-size: 10px;
+				font-family: arial, sans-serif;
+				padding: 2px;
+				width: 171px;
+				line-height: 1.2em;
+			}
+			div#dp-popup {
+				position: absolute;
+				z-index: 199;
+			}
+			div.dp-popup h2 {
+				font-size: 12px;
+				text-align: center;
+				margin: 2px 0;
+				padding: 0;
+			}
+			a#dp-close {
+				font-size: 11px;
+				padding: 4px 0;
+				text-align: center;
+				display: block;
+			}
+			a#dp-close:hover {
+				text-decoration: underline;
+			}
+			div.dp-popup a {
+				color: #000;
+				text-decoration: none;
+				padding: 3px 2px 0;
+			}
+			div.dp-popup div.dp-nav-prev {
+				position: absolute;
+				top: 2px;
+				left: 4px;
+				width: 100px;
+			}
+			div.dp-popup div.dp-nav-prev a {
+				float: left;
+			}
+			/* Opera needs the rules to be this specific otherwise it doesn't change the cursor back to pointer after you have disabled and re-enabled a link */
+			div.dp-popup div.dp-nav-prev a, div.dp-popup div.dp-nav-next a {
+				cursor: pointer;
+			}
+			div.dp-popup div.dp-nav-prev a.disabled, div.dp-popup div.dp-nav-next a.disabled {
+				cursor: default;
+			}
+			div.dp-popup div.dp-nav-next {
+				position: absolute;
+				top: 2px;
+				right: 4px;
+				width: 100px;
+			}
+			div.dp-popup div.dp-nav-next a {
+				float: right;
+			}
+			div.dp-popup a.disabled {
+				cursor: default;
+				color: #aaa;
+			}
+			div.dp-popup td {
+				cursor: pointer;
+				font-size: 10px;
+			}
+			div.dp-popup td.disabled {
+				cursor: default;
+			}
+			
+			a.dp-choose-date {
+				display:none;
+			}
+			
+		</style>
+		
+        <!-- use the full URL because Jira does not rewrite them -->
+		<script src="js/jquery-1.4.2.min.js"></script>
+		<script src="js/raphael-min.js"></script>
+		<script src="js/g.raphael-min.js"></script>
+		<script src="js/g.pie-min.js"></script>
+		<script src="js/g.bar.js"></script>
+		<script src="js/date.js"></script>
+		<script src="js/jquery.datepicker.js"></script>
+		<script src="js/script.js?sasq"></script>
+		<script>
+			$(function() {
+				load();
+			});
+		</script>
+		
+		<div id="holder"></div>
+		<div id="preferences" style="display:none;">
+			<form>
+			   <fieldset>
+					<label for="id_name">Chart name: </label>
+			       	<input type="text" name="name" id="id_name" />
+				
+			       	<label for="id_roo_service_url">Roo monitoring application: </label>
+			       	<span class="help">e.g.: http://localhost:8090/petclinic/monitoring/</span>
+			       	<input type="text" name="roo_service_url" id="id_roo_service_url" />
+
+			       	<label for="id_graph_type" style="margin-top:10px">Graph type:</label>
+			       	<div><select name="graph_type" id="id_graph_type"><option value="pie">Pie</option><option value="bar">Bar chart</option></select></div>
+			
+				 	<label for="id_class_name" style="margin-top:10px">Objet:</label>
+			       	<div><select name="class_name" id="id_class_name"></select></div>
+			
+					<label for="id_field_name" style="margin-top:10px">Field:</label>
+			       	<div><select name="field_name" id="id_field_name"></select></div>
+					
+					<div id="date_params">
+					<label for="id_from" style="margin-top:10px">From:</label>
+			       	<div><input type="text" name="from" id="id_from" /></div>
+			
+					<label for="id_to" style="margin-top:10px">To:</label>
+			       	<div><input type="text" name="to" id="id_to" /></div>
+					</div>
+			   </fieldset>
+			   <input type="submit" value="Save" />
+			</form>
+			<div id="footer">
+			   <a href="http://www.exoplatform.com" style="float:left;" target="_blank"><img src="http://www.exoplatform.com/portal/favicon.ico" style="margin-right:5px;"/>eXo Platform</a>
+			</div>
+			</div>
+
+		</div>
+    ]]>
+   </Content>
+</Module>
